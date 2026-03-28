@@ -16,7 +16,7 @@ docker compose up -d
 
 # 3. Verificar DB
 docker compose ps
-# sqlserver y redis deben estar "Up (healthy)"
+# postgres y redis deben estar "Up (healthy)"
 
 # 4. Abrir terminales para cada servicio
 ```
@@ -30,13 +30,13 @@ Abre **6 terminales** (o usa Windows Terminal con tabs):
 ### Terminal 1 — BackendSys
 ```bash
 cd C:/GIT/Municipio/Backend/gye-core-backend-sys
-dotnet watch --project src/GYE.Core.Api run
+dotnet watch --project src/GYE.Api run
 ```
 
 ### Terminal 2 — BFF
 ```bash
 cd C:/GIT/Municipio/Backend/gye-core-bff
-dotnet watch --project src/GYE.Bff.Api run
+dotnet watch --project src/GYE.Bff run
 ```
 
 ### Terminal 3 — MFE Recaudación
@@ -72,7 +72,7 @@ npx nx serve portal-shell
 | Swagger BFF       | http://localhost:5002/swagger |
 | BackendSys API    | http://localhost:5001         |
 | Swagger Backend   | http://localhost:5001/swagger |
-| SQL Server        | localhost:1433                |
+| PostgreSQL        | localhost:5432                |
 | Redis             | localhost:6379                |
 
 ---
@@ -142,8 +142,8 @@ npx nx g @nx/angular:service deuda \
 
 ## Agregar Endpoint al Backend
 
-1. **Domain**: crear/modificar entidad en `GYE.Core.Domain/Entities/`
-2. **Application**: crear query/command en `GYE.Core.Application/Features/`
+1. **Domain**: crear/modificar entidad en `GYE.Domain/`
+2. **Application**: crear query/command en `GYE.Application/`
 3. **Infrastructure**: agregar repositorio si necesario
 4. **Api**: agregar endpoint en el controller
 5. **Migración**: `dotnet ef migrations add NombreCambio`
@@ -179,14 +179,14 @@ cd C:/GIT/Municipio/Frontend/gye-core-recaudacion
 npx nx serve sys-recaudacion
 ```
 
-### Error de conexión a SQL Server
+### Error de conexión a PostgreSQL
 ```bash
 # Verificar contenedor
-docker ps | grep sqlserver
-docker logs gye-sqlserver | tail -20
+docker ps | grep postgres
+docker logs gye-postgres | tail -20
 
 # Reiniciar si es necesario
-docker compose restart sqlserver
+docker compose restart postgres
 ```
 
 ### Error "Could not load remoteEntry.js"

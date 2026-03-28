@@ -35,25 +35,25 @@ EOF
 }
 
 # ─── BASE DE DATOS ─────────────────────────────────────────────
-echo " [1/6] Levantando Base de Datos..."
+echo " [1/6] Levantando Base de Datos (PostgreSQL)..."
 open_terminal "GYE - Base de Datos" \
-  "cd $BASE_DIR/BaseDeDatos/gye-core-db/SQL && docker compose up"
+  "cd $BASE_DIR/BaseDeDatos/gye-core-db && docker compose up"
 
-echo " Esperando SQL Server (30 seg)..."
-sleep 30
+echo " Esperando PostgreSQL (20 seg)..."
+sleep 20
 
 # ─── BACKEND SYS ───────────────────────────────────────────────
 echo " [2/6] Levantando BackendSys (puerto 5001)..."
 open_terminal "GYE - BackendSys" \
-  "cd $BASE_DIR/Backend/gye-core-backend-sys && dotnet run --project src/GYE.Api --launch-profile http"
+  "cd $BASE_DIR/Backend/gye-core-backend-sys && dotnet run --project src/GYE.Api"
 
 echo " Esperando BackendSys (15 seg)..."
 sleep 15
 
 # ─── BFF ───────────────────────────────────────────────────────
-echo " [3/6] Levantando BFF (puerto 5000)..."
+echo " [3/6] Levantando BFF (puerto 5002)..."
 open_terminal "GYE - BFF" \
-  "cd $BASE_DIR/Backend/gye-core-bff && dotnet run --project src/GYE.Bff --launch-profile http"
+  "cd $BASE_DIR/Backend/gye-core-bff && dotnet run --project src/GYE.Bff"
 
 echo " Esperando BFF (15 seg)..."
 sleep 15
@@ -61,12 +61,12 @@ sleep 15
 # ─── MFE RECAUDACION ───────────────────────────────────────────
 echo " [4/6] Levantando MFE Recaudacion (puerto 4201)..."
 open_terminal "GYE - Recaudacion" \
-  "cd $BASE_DIR/Frontend/gye-core-recaudacion && npx nx serve recaudacion"
+  "cd $BASE_DIR/Frontend/gye-core-recaudacion && npx nx serve sys-recaudacion"
 
 # ─── MFE CONVENIO ──────────────────────────────────────────────
 echo " [5/6] Levantando MFE Convenio (puerto 4202)..."
 open_terminal "GYE - Convenio" \
-  "cd $BASE_DIR/Frontend/gye-core-convenio && npx nx serve convenio"
+  "cd $BASE_DIR/Frontend/gye-core-convenio && npx nx serve sys-convenio"
 
 echo " Esperando MFEs (40 seg)..."
 sleep 40
@@ -74,14 +74,14 @@ sleep 40
 # ─── SHELL ─────────────────────────────────────────────────────
 echo " [6/6] Levantando Shell (puerto 4200)..."
 open_terminal "GYE - Shell" \
-  "cd $BASE_DIR/Frontend/gye-core-shell && npx nx serve shell"
+  "cd $BASE_DIR/Frontend/gye-core-shell && npx nx serve portal-shell"
 
 echo ""
 echo " =========================================="
 echo "  Sistema levantando en segundo plano..."
 echo ""
 echo "  Portal:    http://localhost:4200"
-echo "  BFF:       http://localhost:5000/swagger"
+echo "  BFF:       http://localhost:5002/swagger"
 echo "  Backend:   http://localhost:5001/swagger"
 echo " =========================================="
 echo ""

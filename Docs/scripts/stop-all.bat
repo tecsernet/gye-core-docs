@@ -22,7 +22,7 @@ echo  [OK] Backends parados
 REM ─── PARAR BASE DE DATOS (Docker) ────────────────────────────
 echo  Parando Base de Datos (Docker)...
 taskkill /FI "WINDOWTITLE eq GYE - Base de Datos" /F >nul 2>&1
-cd /d C:\GIT\Municipio\BaseDeDatos\gye-core-db\SQL
+cd /d C:\GIT\Municipio\BaseDeDatos\gye-core-db
 docker compose stop >nul 2>&1
 echo  [OK] Base de datos parada (datos conservados)
 

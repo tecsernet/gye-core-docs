@@ -1,34 +1,29 @@
 # Base de Datos — GYE-CORE
 
-SQL Server 2022 ejecutándose en Docker.
+PostgreSQL 16 ejecutándose en Docker.
 
 ## Docker Compose — DB
 
 Archivo: `BaseDeDatos/gye-core-db/docker-compose.yml`
 
 ```yaml
-version: '3.9'
-
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: gye-sqlserver
+  postgres:
+    image: postgres:16-alpine
+    container_name: gye-postgres
     environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "GYECore@2024!"
-      MSSQL_PID: "Developer"
+      POSTGRES_DB: gye_core
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - sqlserver_data:/var/opt/mssql
-      - ./scripts:/scripts
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "GYECore@2024!" -Q "SELECT 1" || exit 1
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - gye-network
 
   redis:
     image: redis:7-alpine
@@ -37,16 +32,10 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - gye-network
 
 volumes:
-  sqlserver_data:
+  postgres_data:
   redis_data:
-
-networks:
-  gye-network:
-    driver: bridge
 ```
 
 ## Comandos Docker DB
@@ -60,72 +49,62 @@ docker compose up -d
 # Ver estado
 docker compose ps
 
-# Ver logs SQL Server
-docker compose logs sqlserver -f
+# Ver logs PostgreSQL
+docker compose logs postgres -f
 
-# Parar
-docker compose down
+# Parar (conserva datos)
+docker compose stop
 
 # Limpiar (BORRA datos)
 docker compose down -v
 ```
 
-## Conexión a SQL Server
+## Conexión a PostgreSQL
 
-| Parámetro | Valor            |
-|-----------|------------------|
-| Server    | localhost,1433   |
-| User      | sa               |
-| Password  | GYECore@2024!    |
-| Database  | GYECore          |
+| Parámetro | Valor        |
+|-----------|--------------|
+| Host      | localhost    |
+| Port      | 5432         |
+| User      | postgres     |
+| Password  | postgres123  |
+| Database  | gye_core     |
 
-**Connection String:**
+**Connection String (Npgsql):**
 ```
-Server=localhost,1433;Database=GYECore;User Id=sa;Password=GYECore@2024!;TrustServerCertificate=True;
-```
-
-## Estructura de Scripts
-
-```
-gye-core-db/
-├── docker-compose.yml
-├── scripts/
-│   ├── 00-create-database.sql    # Crear DB y usuario
-│   ├── 01-schema.sql             # Tablas y relaciones
-│   ├── 02-stored-procs.sql       # Procedimientos almacenados
-│   ├── 03-seed-data.sql          # Datos de prueba
-│   └── migrations/               # Migraciones EF Core
-└── README.md
+Host=localhost;Port=5432;Database=gye_core;Username=postgres;Password=postgres123
 ```
 
-## Ejecutar Scripts Manualmente
+## Conectar con DBeaver / pgAdmin
+
+1. Host: `localhost`
+2. Port: `5432`
+3. Database: `gye_core`
+4. User: `postgres`
+5. Password: `postgres123`
+
+## Migraciones EF Core
+
+Las migraciones se aplican automáticamente al arrancar el BackendSys.
+Para crearlas o actualizarlas manualmente:
 
 ```bash
-# Conectar al contenedor
-docker exec -it gye-sqlserver bash
+cd C:/GIT/Municipio/Backend/gye-core-backend-sys
 
-# Ejecutar script SQL
-/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "GYECore@2024!" \
-  -i /scripts/00-create-database.sql
+# Crear nueva migración
+dotnet ef migrations add NombreCambio \
+  --project src/GYE.Infrastructure \
+  --startup-project src/GYE.Api
+
+# Aplicar manualmente
+dotnet ef database update \
+  --project src/GYE.Infrastructure \
+  --startup-project src/GYE.Api
 ```
 
 ## Tablas Principales
 
 ```sql
 -- Módulo Recaudación
-Contribuyentes (Id, Nombre, RUC, Cedula, Direccion, ...)
-Deudas (Id, ContribuyenteId, Periodo, Monto, FechaVencimiento, ...)
-Pagos (Id, DeudaId, Monto, FechaPago, MetodoPago, ...)
-
--- Módulo Convenios
-Convenios (Id, ContribuyenteId, FechaInicio, Cuotas, ...)
-CuotasConvenio (Id, ConvenioId, NumeroCuota, Monto, FechaVencimiento, ...)
+Contribuyentes (Id, Nombres, Apellidos, Cedula, Email, Telefono, Direccion, Estado, FechaRegistro)
+Predios        (Id, ContribuyenteId, Direccion, Parroquia, ValorCatastral, Tipo, FechaRegistro)
 ```
-
-## Conexión desde Azure Data Studio / SSMS
-
-1. Server: `localhost,1433`
-2. Authentication: SQL Server Authentication
-3. User: `sa`
-4. Password: `GYECore@2024!`
-5. Marcar: "Trust server certificate"

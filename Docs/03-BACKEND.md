@@ -1,8 +1,8 @@
 # Backend — GYE-CORE (.NET 10 C#)
 
 Dos proyectos backend:
-- **BackendSys**: API principal con lógica de negocio
-- **BFF**: Backend for Frontend (agrega y transforma datos)
+- **BackendSys**: API principal con lógica de negocio (Clean Architecture)
+- **BFF**: Backend for Frontend (agrega y transforma datos para el frontend)
 
 ---
 
@@ -17,37 +17,35 @@ cd C:/GIT/Municipio/Backend/gye-core-backend-sys
 dotnet restore
 
 # Levantar en modo desarrollo
-dotnet run --project src/GYE.Core.Api --launch-profile Development
+dotnet run --project src/GYE.Api
 
 # Con hot reload
-dotnet watch --project src/GYE.Core.Api run
+dotnet watch --project src/GYE.Api run
 ```
 
 **URLs:**
 - API: http://localhost:5001
 - Swagger: http://localhost:5001/swagger
+- Health: http://localhost:5001/health
 
 ### appsettings.Development.json
 
+> Este archivo está en `.gitignore`. Copiarlo desde el ejemplo:
+> ```bash
+> copy src\GYE.Api\appsettings.Development.json.example src\GYE.Api\appsettings.Development.json
+> ```
+
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=GYECore;User Id=sa;Password=GYECore@2024!;TrustServerCertificate=True;"
-  },
-  "Redis": {
-    "ConnectionString": "localhost:6379"
-  },
-  "Jwt": {
-    "Key": "GYE-CORE-SECRET-KEY-DEVELOPMENT-2024",
-    "Issuer": "GYECore",
-    "Audience": "GYECoreClient",
-    "ExpirationMinutes": 60
-  },
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Microsoft.EntityFrameworkCore": "Warning"
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Information"
     }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=gye_core;Username=postgres;Password=postgres123"
   }
 }
 ```
@@ -57,44 +55,27 @@ dotnet watch --project src/GYE.Core.Api run
 ```
 gye-core-backend-sys/
 ├── src/
-│   ├── GYE.Core.Api/
+│   ├── GYE.Api/                    ← Capa de presentación
 │   │   ├── Controllers/
-│   │   │   ├── ContribuyentesController.cs
-│   │   │   ├── DeudasController.cs
-│   │   │   └── PagosController.cs
 │   │   ├── Program.cs
-│   │   └── appsettings.json
-│   ├── GYE.Core.Application/
-│   │   ├── Features/
-│   │   │   ├── Contribuyentes/
-│   │   │   │   ├── Queries/GetContribuyenteQuery.cs
-│   │   │   │   └── Commands/CreateContribuyenteCommand.cs
-│   │   │   └── Deudas/
-│   │   └── Interfaces/
-│   ├── GYE.Core.Domain/
-│   │   ├── Entities/
-│   │   │   ├── Contribuyente.cs
-│   │   │   ├── Deuda.cs
-│   │   │   └── Pago.cs
-│   │   └── Interfaces/
-│   └── GYE.Core.Infrastructure/
-│       ├── Data/
-│       │   └── GYECoreDbContext.cs
-│       ├── Repositories/
-│       └── Migrations/
-└── tests/
+│   │   ├── appsettings.json
+│   │   ├── appsettings.Development.json.example
+│   │   └── appsettings.Certification.json
+│   ├── GYE.Application/            ← Lógica de aplicación
+│   ├── GYE.Domain/                 ← Entidades y abstracciones
+│   └── GYE.Infrastructure/         ← EF Core, repositorios, migraciones
+│       ├── DependencyInjection.cs
+│       ├── Migrations/
+│       └── Persistence/
+└── BackendSys.sln
 ```
 
 ### Paquetes NuGet Principales
 
 ```xml
-<PackageReference Include="MediatR" Version="12.*" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.*" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.*" />
-<PackageReference Include="StackExchange.Redis" Version="2.*" />
-<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.*" />
-<PackageReference Include="Swashbuckle.AspNetCore" Version="7.*" />
-<PackageReference Include="FluentValidation.AspNetCore" Version="11.*" />
+<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
 ```
 
 ### Migraciones EF Core
@@ -103,15 +84,23 @@ gye-core-backend-sys/
 cd C:/GIT/Municipio/Backend/gye-core-backend-sys
 
 # Crear migración
-dotnet ef migrations add InitialCreate \
-  --project src/GYE.Core.Infrastructure \
-  --startup-project src/GYE.Core.Api
+dotnet ef migrations add NombreCambio \
+  --project src/GYE.Infrastructure \
+  --startup-project src/GYE.Api
 
-# Aplicar migraciones
+# Aplicar manualmente
 dotnet ef database update \
-  --project src/GYE.Core.Infrastructure \
-  --startup-project src/GYE.Core.Api
+  --project src/GYE.Infrastructure \
+  --startup-project src/GYE.Api
+
+# Revertir última migración
+dotnet ef migrations remove \
+  --project src/GYE.Infrastructure \
+  --startup-project src/GYE.Api
 ```
+
+> **IMPORTANTE:** `db.Database.Migrate()` en Program.cs aplica migraciones automáticamente al arrancar.
+> Nunca borra data — solo aplica cambios pendientes.
 
 ---
 
@@ -123,9 +112,10 @@ dotnet ef database update \
 cd C:/GIT/Municipio/Backend/gye-core-bff
 
 dotnet restore
-dotnet run --project src/GYE.Bff.Api --launch-profile Development
-# o con hot reload:
-dotnet watch --project src/GYE.Bff.Api run
+dotnet run --project src/GYE.Bff
+
+# Con hot reload
+dotnet watch --project src/GYE.Bff run
 ```
 
 **URLs:**
@@ -138,21 +128,6 @@ dotnet watch --project src/GYE.Bff.Api run
 {
   "BackendSys": {
     "BaseUrl": "http://localhost:5001"
-  },
-  "Redis": {
-    "ConnectionString": "localhost:6379"
-  },
-  "Cors": {
-    "AllowedOrigins": [
-      "http://localhost:4200",
-      "http://localhost:4201",
-      "http://localhost:4202"
-    ]
-  },
-  "Jwt": {
-    "Key": "GYE-CORE-SECRET-KEY-DEVELOPMENT-2024",
-    "Issuer": "GYECore",
-    "Audience": "GYECoreClient"
   }
 }
 ```
@@ -162,20 +137,10 @@ dotnet watch --project src/GYE.Bff.Api run
 ```
 gye-core-bff/
 ├── src/
-│   ├── GYE.Bff.Api/
-│   │   ├── Controllers/
-│   │   │   ├── RecaudacionController.cs
-│   │   │   └── ConvenioController.cs
-│   │   ├── Program.cs
-│   │   └── appsettings.json
-│   ├── GYE.Bff.Application/
-│   │   └── Services/
-│   │       ├── RecaudacionService.cs
-│   │       └── ConvenioService.cs
-│   └── GYE.Bff.Infrastructure/
-│       └── HttpClients/
-│           └── BackendSysClient.cs
-└── tests/
+│   └── GYE.Bff/
+│       ├── Program.cs
+│       └── appsettings.json
+└── BackendBff.sln
 ```
 
 ---
@@ -185,21 +150,16 @@ gye-core-bff/
 ### BackendSys (localhost:5001)
 
 ```
-GET    /api/contribuyentes              # Listar
-GET    /api/contribuyentes/{id}         # Obtener por ID
-POST   /api/contribuyentes              # Crear
-PUT    /api/contribuyentes/{id}         # Actualizar
-GET    /api/deudas/{contribuyenteId}    # Deudas por contribuyente
-POST   /api/pagos                       # Registrar pago
+GET    /health                           # Health check
+GET    /api/contribuyentes               # Listar contribuyentes
+GET    /api/contribuyentes/{id}          # Obtener por ID
+POST   /api/contribuyentes               # Crear
+GET    /api/predios                      # Listar predios
+GET    /api/predios/{id}                 # Obtener por ID
 ```
 
 ### BFF (localhost:5002)
 
 ```
-GET    /api/recaudacion/deuda/{ruc}     # Resumen de deuda
-POST   /api/recaudacion/pagar           # Proceso de pago
-GET    /api/convenio/opciones/{ruc}     # Opciones de convenio
-POST   /api/convenio/crear              # Crear convenio
-POST   /api/auth/login                  # Login
-POST   /api/auth/refresh                # Refresh token
+GET    /health                           # Health check
 ```

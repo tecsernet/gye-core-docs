@@ -8,39 +8,34 @@ Orden obligatorio: DB → Backend → BFF → MFEs → Shell
 
 ```bash
 # Terminal 1 — Base de datos
-cd C:/GIT/Municipio/BaseDeDatos/gye-core-db/SQL   # Windows
-cd ~/GIT/Municipio/BaseDeDatos/gye-core-db/SQL     # Mac
+cd C:/GIT/Municipio/BaseDeDatos/gye-core-db
 docker compose up -d
 
 # Terminal 2 — BackendSys
-cd C:/GIT/Municipio/Backend/gye-core-backend-sys   # Windows
-cd ~/GIT/Municipio/Backend/gye-core-backend-sys    # Mac
-dotnet restore BackendSys.sln
-dotnet run --project src/GYE.Api --launch-profile http
+cd C:/GIT/Municipio/Backend/gye-core-backend-sys
+dotnet restore
+copy src\GYE.Api\appsettings.Development.json.example src\GYE.Api\appsettings.Development.json
+dotnet run --project src/GYE.Api
 
 # Terminal 3 — BFF
-cd C:/GIT/Municipio/Backend/gye-core-bff           # Windows
-cd ~/GIT/Municipio/Backend/gye-core-bff            # Mac
-dotnet restore BackendBff.sln
-dotnet run --project src/GYE.Bff --launch-profile http
+cd C:/GIT/Municipio/Backend/gye-core-bff
+dotnet restore
+dotnet run --project src/GYE.Bff
 
 # Terminal 4 — MFE Recaudación
-cd C:/GIT/Municipio/Frontend/gye-core-recaudacion  # Windows
-cd ~/GIT/Municipio/Frontend/gye-core-recaudacion   # Mac
+cd C:/GIT/Municipio/Frontend/gye-core-recaudacion
 npm install
-npx nx serve recaudacion
+npx nx serve sys-recaudacion
 
 # Terminal 5 — MFE Convenio
-cd C:/GIT/Municipio/Frontend/gye-core-convenio     # Windows
-cd ~/GIT/Municipio/Frontend/gye-core-convenio      # Mac
+cd C:/GIT/Municipio/Frontend/gye-core-convenio
 npm install
-npx nx serve convenio
+npx nx serve sys-convenio
 
 # Terminal 6 — Shell (ÚLTIMO)
-cd C:/GIT/Municipio/Frontend/gye-core-shell        # Windows
-cd ~/GIT/Municipio/Frontend/gye-core-shell         # Mac
+cd C:/GIT/Municipio/Frontend/gye-core-shell
 npm install
-npx nx serve shell
+npx nx serve portal-shell
 ```
 
 ---
@@ -51,34 +46,28 @@ npx nx serve shell
 
 ```bash
 # Terminal 1 — Base de datos
-cd C:/GIT/Municipio/BaseDeDatos/gye-core-db/SQL    # Windows
-cd ~/GIT/Municipio/BaseDeDatos/gye-core-db/SQL     # Mac
+cd C:/GIT/Municipio/BaseDeDatos/gye-core-db
 docker compose up -d
 
 # Terminal 2 — BackendSys
-cd C:/GIT/Municipio/Backend/gye-core-backend-sys   # Windows
-cd ~/GIT/Municipio/Backend/gye-core-backend-sys    # Mac
-dotnet run --project src/GYE.Api --launch-profile http
+cd C:/GIT/Municipio/Backend/gye-core-backend-sys
+dotnet run --project src/GYE.Api
 
 # Terminal 3 — BFF
-cd C:/GIT/Municipio/Backend/gye-core-bff           # Windows
-cd ~/GIT/Municipio/Backend/gye-core-bff            # Mac
-dotnet run --project src/GYE.Bff --launch-profile http
+cd C:/GIT/Municipio/Backend/gye-core-bff
+dotnet run --project src/GYE.Bff
 
 # Terminal 4 — MFE Recaudación
-cd C:/GIT/Municipio/Frontend/gye-core-recaudacion  # Windows
-cd ~/GIT/Municipio/Frontend/gye-core-recaudacion   # Mac
-npx nx serve recaudacion
+cd C:/GIT/Municipio/Frontend/gye-core-recaudacion
+npx nx serve sys-recaudacion
 
 # Terminal 5 — MFE Convenio
-cd C:/GIT/Municipio/Frontend/gye-core-convenio     # Windows
-cd ~/GIT/Municipio/Frontend/gye-core-convenio      # Mac
-npx nx serve convenio
+cd C:/GIT/Municipio/Frontend/gye-core-convenio
+npx nx serve sys-convenio
 
 # Terminal 6 — Shell (ÚLTIMO)
-cd C:/GIT/Municipio/Frontend/gye-core-shell        # Windows
-cd ~/GIT/Municipio/Frontend/gye-core-shell         # Mac
-npx nx serve shell
+cd C:/GIT/Municipio/Frontend/gye-core-shell
+npx nx serve portal-shell
 ```
 
 ---
@@ -89,8 +78,7 @@ npx nx serve shell
 # Frontends y backends: Ctrl+C en cada terminal
 
 # Parar Docker (conserva los datos de la DB)
-cd C:/GIT/Municipio/BaseDeDatos/gye-core-db/SQL    # Windows
-cd ~/GIT/Municipio/BaseDeDatos/gye-core-db/SQL     # Mac
+cd C:/GIT/Municipio/BaseDeDatos/gye-core-db
 docker compose stop
 ```
 
@@ -103,8 +91,11 @@ docker compose stop
 | Portal           | http://localhost:4200         |
 | MFE Recaudación  | http://localhost:4201         |
 | MFE Convenio     | http://localhost:4202         |
-| Swagger BFF      | http://localhost:5000/swagger |
+| Swagger BFF      | http://localhost:5002/swagger |
 | Swagger Backend  | http://localhost:5001/swagger |
+| Health Backend   | http://localhost:5001/health  |
+| PostgreSQL       | localhost:5432                |
+| Redis            | localhost:6379                |
 
 ---
 
@@ -127,26 +118,19 @@ Sin Docker no levanta la base de datos y el sistema falla.
 Doble click en: Docs/scripts/start-all.bat
 ```
 
-O desde Git Bash:
-```bash
-bash Docs/scripts/start-all.bat
-```
-
 **Qué hace:**
 1. Verifica que Docker esté corriendo — si no, avisa y se detiene
-2. Abre una ventana `cmd` por cada servicio (6 en total), con el nombre del servicio en el título
+2. Abre una ventana `cmd` por cada servicio (6 en total)
 3. Espera entre servicios para que arranquen en el orden correcto:
-   - DB (30 seg) → BackendSys (15 seg) → BFF (15 seg) → MFEs (40 seg) → Shell
+   - DB (20 seg) → BackendSys (15 seg) → BFF (15 seg) → MFEs (40 seg) → Shell
 
 **Ventanas que abre:**
-- `GYE - Base de Datos` → SQL Server en Docker
+- `GYE - Base de Datos` → PostgreSQL en Docker
 - `GYE - BackendSys`   → API .NET puerto 5001
-- `GYE - BFF`          → BFF .NET puerto 5000
+- `GYE - BFF`          → BFF .NET puerto 5002
 - `GYE - Recaudacion`  → MFE Angular puerto 4201
 - `GYE - Convenio`     → MFE Angular puerto 4202
 - `GYE - Shell`        → Host Angular puerto 4200
-
-Cuando el script termina, abre **http://localhost:4200** en el browser.
 
 ---
 
@@ -156,36 +140,11 @@ Cuando el script termina, abre **http://localhost:4200** en el browser.
 Doble click en: Docs/scripts/stop-all.bat
 ```
 
-**Qué hace:**
-1. Cierra las ventanas cmd de frontends (Shell, Recaudacion, Convenio)
-2. Cierra las ventanas cmd de backends (BackendSys, BFF)
-3. Para el contenedor Docker de SQL Server — **los datos de la DB se conservan**
-
 ---
 
-### macOS — start-all.sh
+### macOS — start-all.sh / stop-all.sh
 
 ```bash
 bash Docs/scripts/start-all.sh
-```
-
-**Qué hace:**
-1. Verifica que Docker esté corriendo — si no, avisa y se detiene
-2. Abre una ventana de Terminal por cada servicio (6 en total)
-3. Espera entre servicios igual que la versión Windows
-
-> Requiere que la app **Terminal** esté permitida en Privacidad del sistema
-> (System Settings → Privacy → Automation → Terminal).
-
----
-
-### macOS — stop-all.sh
-
-```bash
 bash Docs/scripts/stop-all.sh
 ```
-
-**Qué hace:**
-1. Busca y mata los procesos que usan los puertos 4200, 4201, 4202 (frontends)
-2. Busca y mata los procesos que usan los puertos 5000, 5001 (backends)
-3. Para el contenedor Docker de SQL Server — **los datos de la DB se conservan**
