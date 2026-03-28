@@ -1,6 +1,6 @@
 #!/bin/bash
 # GYE-CORE — Clonar todos los repositorios
-# Ejecutar desde: C:/GIT/Municipio/
+# Ejecutar desde: C:/GIT/Municipio/  (Windows) o ~/GIT/Municipio/ (Mac)
 # Uso: bash Docs/scripts/clone-all.sh
 
 set -e
@@ -32,20 +32,20 @@ clone_or_pull() {
 # ─── BASE DE DATOS ────────────────────────────────────────────
 echo ""
 echo "=== BASE DE DATOS ==="
-clone_or_pull "$BASE_DIR/BaseDeDatos" "https://github.com/stdpacheco/gye-core-db"
+clone_or_pull "$BASE_DIR/BaseDeDatos" "https://github.com/tecsernet/gye-core-db"
 
 # ─── BACKEND ──────────────────────────────────────────────────
 echo ""
 echo "=== BACKEND ==="
-clone_or_pull "$BASE_DIR/Backend" "https://github.com/stdpacheco/gye-core-backend-sys"
-clone_or_pull "$BASE_DIR/Backend" "https://github.com/stdpacheco/gye-core-bff"
+clone_or_pull "$BASE_DIR/Backend" "https://github.com/tecsernet/gye-core-backend-sys"
+clone_or_pull "$BASE_DIR/Backend" "https://github.com/tecsernet/gye-core-bff"
 
 # ─── FRONTEND ─────────────────────────────────────────────────
 echo ""
 echo "=== FRONTEND ==="
-clone_or_pull "$BASE_DIR/Frontend" "https://github.com/stdpacheco/gye-core-shell"
-clone_or_pull "$BASE_DIR/Frontend" "https://github.com/stdpacheco/gye-core-recaudacion"
-clone_or_pull "$BASE_DIR/Frontend" "https://github.com/stdpacheco/gye-core-convenio"
+clone_or_pull "$BASE_DIR/Frontend" "https://github.com/tecsernet/gye-core-shell"
+clone_or_pull "$BASE_DIR/Frontend" "https://github.com/tecsernet/gye-core-recaudacion"
+clone_or_pull "$BASE_DIR/Frontend" "https://github.com/tecsernet/gye-core-convenio"
 
 echo ""
 echo "========================================"

@@ -42,6 +42,9 @@ nvm use 22
 # Angular CLI y Nx (en Git Bash o PowerShell)
 npm install -g @angular/cli@21 nx
 
+# dotnet-ef (migraciones)
+dotnet tool install --global dotnet-ef
+
 # Docker Desktop — descarga manual:
 # https://www.docker.com/products/docker-desktop/
 ```
@@ -67,6 +70,7 @@ source ~/.zshrc
 brew install gh
 brew install --cask google-cloud-sdk
 npm install -g @angular/cli@21 nx
+dotnet tool install --global dotnet-ef
 
 # Docker Desktop — descarga manual:
 # https://www.docker.com/products/docker-desktop/
@@ -88,48 +92,50 @@ npm install -g @angular/cli@21 nx
 
 ## 2. Clonar Repositorios
 
-### Windows (Git Bash)
+### Opción A — Script automático (recomendado)
 
 ```bash
-# Crear estructura
-mkdir -p C:/GIT/Municipio/{BaseDeDatos,Backend,Frontend,Docs}
+# Windows (Git Bash) — desde C:/GIT/Municipio/
+bash Docs/scripts/clone-all.sh
 
-# Clonar Base de datos
-cd C:/GIT/Municipio/BaseDeDatos
-git clone https://github.com/stdpacheco/gye-core-db
-
-# Clonar Backend
-cd C:/GIT/Municipio/Backend
-git clone https://github.com/stdpacheco/gye-core-backend-sys
-git clone https://github.com/stdpacheco/gye-core-bff
-
-# Clonar Frontend
-cd C:/GIT/Municipio/Frontend
-git clone https://github.com/stdpacheco/gye-core-shell
-git clone https://github.com/stdpacheco/gye-core-recaudacion
-git clone https://github.com/stdpacheco/gye-core-convenio
+# macOS — desde ~/GIT/Municipio/
+bash Docs/scripts/clone-all.sh
 ```
 
-### macOS (Terminal)
+### Opción B — Manual
 
+**Windows (Git Bash):**
 ```bash
-# Crear estructura
-mkdir -p ~/GIT/Municipio/{BaseDeDatos,Backend,Frontend,Docs}
+mkdir -p C:/GIT/Municipio/{BaseDeDatos,Backend,Frontend}
 
-# Clonar Base de datos
+cd C:/GIT/Municipio/BaseDeDatos
+git clone https://github.com/tecsernet/gye-core-db
+
+cd C:/GIT/Municipio/Backend
+git clone https://github.com/tecsernet/gye-core-backend-sys
+git clone https://github.com/tecsernet/gye-core-bff
+
+cd C:/GIT/Municipio/Frontend
+git clone https://github.com/tecsernet/gye-core-shell
+git clone https://github.com/tecsernet/gye-core-recaudacion
+git clone https://github.com/tecsernet/gye-core-convenio
+```
+
+**macOS:**
+```bash
+mkdir -p ~/GIT/Municipio/{BaseDeDatos,Backend,Frontend}
+
 cd ~/GIT/Municipio/BaseDeDatos
-git clone https://github.com/stdpacheco/gye-core-db
+git clone https://github.com/tecsernet/gye-core-db
 
-# Clonar Backend
 cd ~/GIT/Municipio/Backend
-git clone https://github.com/stdpacheco/gye-core-backend-sys
-git clone https://github.com/stdpacheco/gye-core-bff
+git clone https://github.com/tecsernet/gye-core-backend-sys
+git clone https://github.com/tecsernet/gye-core-bff
 
-# Clonar Frontend
 cd ~/GIT/Municipio/Frontend
-git clone https://github.com/stdpacheco/gye-core-shell
-git clone https://github.com/stdpacheco/gye-core-recaudacion
-git clone https://github.com/stdpacheco/gye-core-convenio
+git clone https://github.com/tecsernet/gye-core-shell
+git clone https://github.com/tecsernet/gye-core-recaudacion
+git clone https://github.com/tecsernet/gye-core-convenio
 ```
 
 ### Resultado esperado
@@ -152,103 +158,54 @@ Municipio/
 
 ## 3. Configurar Archivos de Entorno
 
-### Base de datos — archivo .env
-
-```bash
-# Windows (Git Bash)
-echo "SA_PASSWORD=GyeCore2025!" > C:/GIT/Municipio/BaseDeDatos/gye-core-db/SQL/.env
-
-# macOS
-echo "SA_PASSWORD=GyeCore2025!" > ~/GIT/Municipio/BaseDeDatos/gye-core-db/SQL/.env
-```
-
 ### BackendSys — appsettings.Development.json
 
 **Windows:**
 ```bash
 cd C:/GIT/Municipio/Backend/gye-core-backend-sys
-cp src/GYE.Api/appsettings.Development.json.example \
-   src/GYE.Api/appsettings.Development.json
+copy src\GYE.Api\appsettings.Development.json.example src\GYE.Api\appsettings.Development.json
 ```
 
 **macOS:**
 ```bash
 cd ~/GIT/Municipio/Backend/gye-core-backend-sys
-cp src/GYE.Api/appsettings.Development.json.example \
-   src/GYE.Api/appsettings.Development.json
+cp src/GYE.Api/appsettings.Development.json.example src/GYE.Api/appsettings.Development.json
 ```
 
-Editar el archivo — cambiar `TU_PASSWORD_AQUI` por `GyeCore2025!`:
+El archivo ya tiene la connection string correcta para PostgreSQL local — no requiere cambios:
 
 ```json
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning",
-      "Microsoft.EntityFrameworkCore.Database.Command": "Information"
-    }
-  },
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=GYECore;User Id=sa;Password=GyeCore2025!;TrustServerCertificate=True;"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=gye_core;Username=postgres;Password=postgres123"
   }
 }
 ```
 
-### BFF — appsettings.Development.json
-
-**Windows:**
-```bash
-cd C:/GIT/Municipio/Backend/gye-core-bff
-cp src/GYE.Bff/appsettings.Development.json.example \
-   src/GYE.Bff/appsettings.Development.json
-```
-
-**macOS:**
-```bash
-cd ~/GIT/Municipio/Backend/gye-core-bff
-cp src/GYE.Bff/appsettings.Development.json.example \
-   src/GYE.Bff/appsettings.Development.json
-```
-
-El archivo queda así (no necesita cambios):
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "BackendSys": {
-    "BaseUrl": "http://localhost:5001"
-  }
-}
-```
+> Este archivo está en `.gitignore` y nunca se sube a GitHub.
 
 ---
 
 ## 4. Levantar el Sistema
 
 > Abre **6 terminales** (o tabs en Windows Terminal / iTerm2).
-> Orden importante: **DB → Backend → BFF → MFEs → Shell**
+> Orden importante: **DB → BackendSys → BFF → MFEs → Shell**
 
 ### Terminal 1 — Base de Datos
 
 ```bash
 # Windows
-cd C:/GIT/Municipio/BaseDeDatos/gye-core-db/SQL
+cd C:/GIT/Municipio/BaseDeDatos/gye-core-db
 
 # macOS
-cd ~/GIT/Municipio/BaseDeDatos/gye-core-db/SQL
+cd ~/GIT/Municipio/BaseDeDatos/gye-core-db
 
 # Ambos:
 docker compose up -d
 
-# Verificar (esperar ~30 segundos)
+# Verificar (esperar ~20 segundos)
 docker compose ps
-# Debe mostrar: gye-core-sqlserver → Up (healthy)
+# Debe mostrar: gye-postgres y gye-redis → Up (healthy)
 ```
 
 ### Terminal 2 — BackendSys (puerto 5001)
@@ -261,8 +218,8 @@ cd C:/GIT/Municipio/Backend/gye-core-backend-sys
 cd ~/GIT/Municipio/Backend/gye-core-backend-sys
 
 # Ambos:
-dotnet restore BackendSys.sln
-dotnet run --project src/GYE.Api --launch-profile http
+dotnet restore
+dotnet run --project src/GYE.Api
 ```
 
 Esperar a ver:
@@ -271,7 +228,9 @@ Now listening on: http://localhost:5001
 Application started.
 ```
 
-### Terminal 3 — BFF (puerto 5000)
+> Las migraciones se aplican automáticamente al arrancar. La primera vez tarda unos segundos más.
+
+### Terminal 3 — BFF (puerto 5002)
 
 ```bash
 # Windows
@@ -281,13 +240,13 @@ cd C:/GIT/Municipio/Backend/gye-core-bff
 cd ~/GIT/Municipio/Backend/gye-core-bff
 
 # Ambos:
-dotnet restore BackendBff.sln
-dotnet run --project src/GYE.Bff --launch-profile http
+dotnet restore
+dotnet run --project src/GYE.Bff
 ```
 
 Esperar a ver:
 ```
-Now listening on: http://localhost:5000
+Now listening on: http://localhost:5002
 Application started.
 ```
 
@@ -302,13 +261,7 @@ cd ~/GIT/Municipio/Frontend/gye-core-recaudacion
 
 # Ambos:
 npm install
-npx nx serve recaudacion
-```
-
-Esperar a ver:
-```
-✔ Compiled successfully.
-Local: http://localhost:4201/
+npx nx serve sys-recaudacion
 ```
 
 ### Terminal 5 — MFE Convenio (puerto 4202)
@@ -322,13 +275,7 @@ cd ~/GIT/Municipio/Frontend/gye-core-convenio
 
 # Ambos:
 npm install
-npx nx serve convenio
-```
-
-Esperar a ver:
-```
-✔ Compiled successfully.
-Local: http://localhost:4202/
+npx nx serve sys-convenio
 ```
 
 ### Terminal 6 — Shell Host (puerto 4200) — ÚLTIMO
@@ -342,13 +289,7 @@ cd ~/GIT/Municipio/Frontend/gye-core-shell
 
 # Ambos:
 npm install
-npx nx serve shell
-```
-
-Esperar a ver:
-```
-✔ Compiled successfully.
-Local: http://localhost:4200/
+npx nx serve portal-shell
 ```
 
 ---
@@ -357,14 +298,16 @@ Local: http://localhost:4200/
 
 ### URLs del sistema
 
-| Servicio           | URL                           | Verificar                    |
-|--------------------|-------------------------------|------------------------------|
-| Portal principal   | http://localhost:4200         | Debe cargar la app           |
-| MFE Recaudación    | http://localhost:4201         | Debe cargar el microfrontend |
-| MFE Convenio       | http://localhost:4202         | Debe cargar el microfrontend |
-| Swagger BackendSys | http://localhost:5001/swagger | Lista de endpoints           |
-| Swagger BFF        | http://localhost:5000/swagger | Lista de endpoints           |
-| SQL Server         | localhost:1433                | Azure Data Studio / SSMS     |
+| Servicio           | URL                           |
+|--------------------|-------------------------------|
+| Portal principal   | http://localhost:4200         |
+| MFE Recaudación    | http://localhost:4201         |
+| MFE Convenio       | http://localhost:4202         |
+| Swagger BackendSys | http://localhost:5001/swagger |
+| Health BackendSys  | http://localhost:5001/health  |
+| Swagger BFF        | http://localhost:5002/swagger |
+| PostgreSQL         | localhost:5432                |
+| Redis              | localhost:6379                |
 
 ### Verificar remoteEntry.mjs
 
@@ -378,26 +321,25 @@ curl http://localhost:4202/remoteEntry.mjs | head -3
 
 ## Troubleshooting
 
-### SQL Server no levanta
+### PostgreSQL no levanta
 
 ```bash
-docker compose logs sqlserver -f
-# Esperar el mensaje: "SQL Server is now ready for client connections"
-# Si tarda más de 60 seg, reiniciar:
-docker compose restart sqlserver
+docker compose logs postgres -f
+# Reiniciar si es necesario:
+docker compose restart postgres
 ```
 
-### "Cannot connect to SQL Server" en el backend
+### "Cannot connect to database" en el backend
 
 - Verificar que Docker corre: `docker ps`
-- Verificar la connection string en `appsettings.Development.json`
-- Password: `GyeCore2025!` (no `TU_PASSWORD_AQUI`)
+- Verificar la connection string en `src/GYE.Api/appsettings.Development.json`
+- Confirmar que PostgreSQL está healthy: `docker compose ps`
 
 ### Shell no carga los microfrontends
 
 1. Verificar que recaudacion (4201) y convenio (4202) están corriendo
 2. Abrir en el browser: `http://localhost:4201/remoteEntry.mjs`
-3. Si no responde → el MFE no está levantado
+3. Si no responde → el MFE no está levantado, arrancarlo primero
 
 ### "Port already in use"
 
@@ -411,16 +353,16 @@ lsof -i :4200
 kill -9 [PID]
 ```
 
-### Docker no instalado
-
-- Descarga e instala Docker Desktop: https://www.docker.com/products/docker-desktop/
-- Windows: habilitar WSL 2 primero (`wsl --install` en PowerShell Admin)
-- Mac: solo instalar el .dmg y abrir
-
 ### `nx: command not found`
 
 ```bash
 npm install -g nx
 # o usar directamente:
-npx nx serve shell
+npx nx serve portal-shell
 ```
+
+### Docker no instalado
+
+- Descarga e instala Docker Desktop: https://www.docker.com/products/docker-desktop/
+- Windows: habilitar WSL 2 primero (`wsl --install` en PowerShell Admin)
+- Mac: solo instalar el .dmg y abrir
