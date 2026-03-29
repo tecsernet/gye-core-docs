@@ -16,6 +16,7 @@ Guía completa de instalación desde **cero** en macOS (Intel y Apple Silicon M1
 | Docker Desktop    | latest        | PostgreSQL + Redis en contenedores     |
 | Angular CLI       | 21.x          | Comandos Angular                       |
 | Nx                | 22.x          | Monorepo frontend                      |
+| Firebase CLI      | latest        | Deploy frontend a Firebase Hosting     |
 | gh CLI            | 2.x           | GitHub desde terminal                  |
 | gcloud CLI        | latest        | Google Cloud / despliegue              |
 
@@ -126,11 +127,12 @@ docker ps   # debe responder sin error
 ## Paso 5 — Angular CLI y Nx
 
 ```bash
-npm install -g @angular/cli@21 nx
+npm install -g @angular/cli@21 nx firebase-tools
 
 # Verificar
 ng version | grep "Angular CLI"   # 21.x.x
 nx --version                       # 22.x.x
+firebase --version
 ```
 
 ---
@@ -195,6 +197,9 @@ ng version 2>/dev/null | grep "Angular CLI" || echo "ERROR: npm install -g @angu
 
 echo "" && echo "--- Nx ---"
 nx --version 2>/dev/null || echo "ERROR: npm install -g nx"
+
+echo "" && echo "--- Firebase CLI ---"
+firebase --version 2>/dev/null || echo "ERROR: npm install -g firebase-tools"
 
 echo "" && echo "--- Docker ---"
 docker --version || echo "ERROR: instalar Docker Desktop"

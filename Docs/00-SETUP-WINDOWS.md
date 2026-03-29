@@ -16,6 +16,7 @@ Guía completa de instalación y configuración en **Windows 11** desde cero.
 | WSL 2             | (requerido)   | Motor de virtualización para Docker    |
 | Angular CLI       | 21.x          | Comandos Angular                       |
 | Nx                | 22.x          | Monorepo frontend                      |
+| Firebase CLI      | latest        | Deploy frontend a Firebase Hosting     |
 | gh CLI            | 2.x           | GitHub desde terminal                  |
 | gcloud CLI        | latest        | Google Cloud / despliegue              |
 
@@ -134,17 +135,18 @@ docker ps   # debe responder sin error
 
 ---
 
-## Paso 7 — Angular CLI y Nx
+## Paso 7 — Angular CLI, Nx y Firebase CLI
 
 ```bash
-npm install -g @angular/cli@21 nx
+npm install -g @angular/cli@21 nx firebase-tools
 ```
 
 Verifica:
 
 ```bash
-ng version    # Angular CLI: 21.x.x
-nx --version  # 22.x.x
+ng version        # Angular CLI: 21.x.x
+nx --version      # 22.x.x
+firebase --version
 ```
 
 ---
@@ -213,6 +215,7 @@ echo "=== Node ===" && node --version
 echo "=== npm ===" && npm --version
 echo "=== Angular ===" && ng version 2>/dev/null | grep "Angular CLI" || echo "NO instalado"
 echo "=== Nx ===" && nx --version 2>/dev/null || echo "NO instalado"
+echo "=== Firebase ===" && firebase --version 2>/dev/null || echo "NO instalado"
 echo "=== Docker ===" && docker --version
 echo "=== Docker daemon ===" && docker ps > /dev/null 2>&1 && echo "OK corriendo" || echo "Abrir Docker Desktop"
 echo "=== gh ===" && gh --version 2>/dev/null | head -1 || echo "NO instalado"
